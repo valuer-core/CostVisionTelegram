@@ -1,0 +1,38 @@
+name: Deploy Telegram Bot
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        shell: powershell
+        run: |
+          docker build -t tg-bot-stub:latest .
+
+      - name: Stop and Remove Old Container
+        shell: powershell
+        run: |
+          $container = docker ps -a -q --filter "name=tg-bot-container"
+          if ($container) {
+              docker stop tg-bot-container
+              docker rm tg-bot-container
+          }
+
+      - name: Run New Container with Logs
+        shell: powershell
+        run: |
+          docker run -d `
+            --name tg-bot-container `
+            --restart always `
+            -v C:\logs\tg_bot_logs:/app/logs `
+            -e TELEGRAM_BOT_TOKEN="${{ secrets.TELEGRAM_BOT_TOKEN }}" `
+            tg-bot-stub:latest
