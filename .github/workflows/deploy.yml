@@ -5,6 +5,11 @@ on:
     branches:
       - master
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  # Tell Docker CLI to connect via local TCP port instead of named pipe
+  DOCKER_HOST: tcp://localhost:2375
+
 jobs:
   deploy:
     runs-on: self-hosted
